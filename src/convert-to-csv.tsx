@@ -6,7 +6,7 @@ type Keyword = {
     search_volume: number;
 };
 
-type Keywords = {data: Keyword[]};
+type Keywords = { data: Keyword[] };
 
 const KeywordToCsvConverter = () => {
     const [inputData, setInputData] = useState('');
@@ -15,7 +15,7 @@ const KeywordToCsvConverter = () => {
     const [csvData, setCsvData] = useState('');
 
     const convertToCSV = (keywords: Keywords): string => {
-        if (!keywords || keywords.data.length === 0) return '';
+        if (!keywords || !keywords.data || keywords.data.length === 0) return '';
 
         // CSV header
         const header = 'kata_pencarian,jumlah_pencarian\n';
@@ -41,12 +41,16 @@ const KeywordToCsvConverter = () => {
             const parsedData: Keywords = JSON.parse(inputData);
 
             // Validate the structure
-            if (!Array.isArray(parsedData)) {
-                throw new Error('Input must be an array');
+            if (!parsedData || typeof parsedData !== 'object') {
+                throw new Error('Input must be an object');
             }
 
-            for (let i = 0; i < parsedData.length; i++) {
-                const item = parsedData[i];
+            if (!parsedData.data || !Array.isArray(parsedData.data)) {
+                throw new Error('Input must have a "data" property containing an array');
+            }
+
+            for (let i = 0; i < parsedData.data.length; i++) {
+                const item = parsedData.data[i];
                 if (!item || typeof item !== 'object') {
                     throw new Error(`Item at index ${i} is not an object`);
                 }
@@ -86,11 +90,13 @@ const KeywordToCsvConverter = () => {
         URL.revokeObjectURL(url);
     };
 
-    const sampleData = `[
-  {"keyword": "react tutorial", "search_volume": 12500},
-  {"keyword": "javascript basics", "search_volume": 8900},
-  {"keyword": "web development", "search_volume": 15600}
-]`;
+    const sampleData = `{
+  "data": [
+    {"keyword": "react tutorial", "search_volume": 12500},
+    {"keyword": "javascript basics", "search_volume": 8900},
+    {"keyword": "web development", "search_volume": 15600}
+  ]
+}`;
 
     return (
         <div className="max-w-4xl mx-auto p-6 bg-white">
@@ -179,8 +185,8 @@ const KeywordToCsvConverter = () => {
             <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <h3 className="font-medium text-blue-900 mb-2">Instructions:</h3>
                 <ul className="text-sm text-blue-800 space-y-1">
-                    <li>1. Paste your JSON array of keyword objects in the input field</li>
-                    <li>2. Each object should have 'keyword' (string) and 'search_volume' (number) properties</li>
+                    <li>1. Paste your JSON object with a "data" property containing keyword objects</li>
+                    <li>2. Each keyword object should have 'keyword' (string) and 'search_volume' (number) properties</li>
                     <li>3. Optionally change the output file name</li>
                     <li>4. Click "Convert to CSV" to generate the CSV format</li>
                     <li>5. Click "Download CSV" to save the file to your computer</li>
@@ -194,9 +200,9 @@ const KeywordToCsvConverter = () => {
 {`type Keyword = {
   keyword: string;
   search_volume: number;
-}
+};
 
-type Keywords = Keyword[];`}
+type Keywords = { data: Keyword[] };`}
         </pre>
             </div>
         </div>
