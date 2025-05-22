@@ -6,7 +6,7 @@ type Keyword = {
     search_volume: number;
 };
 
-type Keywords = Keyword[];
+type Keywords = {data: Keyword[]};
 
 const KeywordToCsvConverter = () => {
     const [inputData, setInputData] = useState('');
@@ -15,13 +15,13 @@ const KeywordToCsvConverter = () => {
     const [csvData, setCsvData] = useState('');
 
     const convertToCSV = (keywords: Keywords): string => {
-        if (!keywords || keywords.length === 0) return '';
+        if (!keywords || keywords.data.length === 0) return '';
 
         // CSV header
         const header = 'kata_pencarian,jumlah_pencarian\n';
 
         // CSV rows
-        const rows = keywords.map(item =>
+        const rows = keywords.data.map(item =>
             `"${item.keyword.replace(/"/g, '""')}",${item.search_volume}`
         ).join('\n');
 
